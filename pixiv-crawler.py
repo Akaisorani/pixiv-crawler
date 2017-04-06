@@ -131,20 +131,12 @@ classification=[
 		pixiv_root+"ranking.php?mode=daily&p=1",
 		pixiv_root+"ranking.php?mode=daily&p=2",
 		pixiv_root+"ranking.php?mode=original"]),
-	("r18Rank",[
-		pixiv_root+"ranking.php?mode=daily_r18&p=1",
-		pixiv_root+"ranking.php?mode=daily_r18&p=2",
-		pixiv_root+"ranking.php?mode=male_r18&p=1",
-		pixiv_root+"ranking.php?mode=male_r18&p=2",
-		pixiv_root+"ranking.php?mode=weekly_r18&p=1",
-		pixiv_root+"ranking.php?mode=weekly_r18&p=2"]),
 	("bookmark",[
 		pixiv_root+"/bookmark_new_illust.php?p=%d"%i for i in range(1,5)]),
-	# ("tag-アナル尻尾",[
-		# pixiv_root+"search.php?word=アナル尻尾&order=date_d&p=%d"%i for i in range(1,10)]),
+	# ("tag-fate",[
+		# pixiv_root+"search.php?word=fate&order=date_d&p=%d"%i for i in range(1,10)]),
 	# ("画师-litsvn",[
 		# pixiv_root+"member_illust.php?id=5151250&type=all&p=%d"%i for i in range(1,6)]),
-
 ]
 
 #----------PREDO
