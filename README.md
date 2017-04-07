@@ -11,7 +11,7 @@ Download image from
 ## features
 
 * it can download images by **_8 threads_**(the maxnumber of threads can be adjusted) to accelerate the progress
-* in most case it download the first picture of a **_manga_** type illustration, but in the illustrator's illustration list it will download the **_full manga_**(of course you can adjust the condition)
+* in most case it download the first picture of a **_manga_** type illustration, but in the illustrator's illustration list it will download the **_full manga_**(of course you can adjust the condition to decide when to download full)
 * it can **_login_** with your account automatically with your account name and password
 * after once login it will save **_cookies_** to local to avoid login each time
 * it can save a **_garage file_** as a list of the image id you have downloaded to avoid download images repeatedly(because some ranklist doesn't change a lot next day)
