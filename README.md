@@ -1,4 +1,4 @@
-# pixiv-crawl
+# pixiv-crawler
 pixiv image crawler
 
 ## functions
