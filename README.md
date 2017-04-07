@@ -4,7 +4,7 @@ pixiv image crawler
 ## functions
 
 Download image from
-* listed in ranklist such as dailyrank
+* images listed in ranklist such as dailyrank
 * provided tags
 * illustrator's illustration list
 
