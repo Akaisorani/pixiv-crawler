@@ -18,7 +18,7 @@ def login():
 
 	tree=html.fromstring(r.text)
 	authenticity_token=list(set(tree.xpath("//input[@name='post_key']/@value")))[0]
-	with open("account","r") as f:
+	with open("account","r") as f:	#account文件放在同目录下，包含一行:用户名(空格)密码
 		account=f.read().split()
 	payload={
 		'pixiv_id':account[0],
@@ -35,7 +35,7 @@ def login():
 	if re.search('not-logged-in',r.text)!=None:raise IOError('login failed')	
 	else:
 		print("log in")
-		with open("./cookies","wb") as f:
+		with open("./cookies","wb") as f:	#第一次登录后将存档cookies用来登录
 			pickle.dump(session_requests.cookies,f)
 
 def downloadImage(imgurl,filename,*,header=None,imgid=None,imgidext=None):
@@ -82,7 +82,7 @@ def listener():
 		elif x=="e":
 			break
 
-def synchronize_garage():
+def synchronize_garage():	#当你使用多台计算机下载图片时，你可能需要将你的garage文件同步到你的服务器上以免重复
 	try:
 		private_key = paramiko.RSAKey.from_private_key_file("C:/Users/HanYue/.ssh/id_rsa")
 		transport = paramiko.Transport(("akaisora.tech",22))
@@ -109,10 +109,12 @@ def synchronize_garage():
 		print("synchronize garage failed")
 		print(e)
 	finally:
-		transport.close();
-			
+		try:
+			transport.close()
+		except Exception as e:
+			pass
 
-def testrecommen():
+def testrecommen():	#未完成功能
 	r=session_requests.get(pixiv_root+"recommended.php")
 	tree=html.fromstring(r.text)
 	token=tree.xpath("/pixiv.context.token")
@@ -131,12 +133,19 @@ classification=[
 		pixiv_root+"ranking.php?mode=daily&p=1",
 		pixiv_root+"ranking.php?mode=daily&p=2",
 		pixiv_root+"ranking.php?mode=original"]),
+	# ("r18Rank",[
+		# pixiv_root+"ranking.php?mode=daily_r18&p=1",
+		# pixiv_root+"ranking.php?mode=male_r18&p=1",
+		# pixiv_root+"ranking.php?mode=weekly_r18&p=1",
+		# pixiv_root+"ranking.php?mode=weekly_r18&p=2"]),
 	("bookmark",[
-		pixiv_root+"/bookmark_new_illust.php?p=%d"%i for i in range(1,5)]),
-	# ("tag-fate",[
-		# pixiv_root+"search.php?word=fate&order=date_d&p=%d"%i for i in range(1,10)]),
-	# ("画师-litsvn",[
-		# pixiv_root+"member_illust.php?id=5151250&type=all&p=%d"%i for i in range(1,6)]),
+		pixiv_root+"/bookmark_new_illust.php?p=%d"%i for i in range(1,10)]),
+	# ("tag-栗山未来",[
+		# pixiv_root+"search.php?word=栗山未来&order=date_d&p=%d"%i for i in range(1,10)]),
+	# ("画师-Re-しましま",[
+		# pixiv_root+"member_illust.php?id=9935837&type=all&p=%d"%i for i in range(1,4)]),
+	# ("画师-TMLV",[
+		# pixiv_root+"member_illust.php?id=8191442&type=all&p=%d"%i for i in range(1,2)]),
 ]
 
 #----------PREDO
@@ -151,10 +160,12 @@ except Exception as e:
 if not os.path.exists(local_save_root) : os.makedirs(local_save_root)
 
 garage=set()
-if os.path.exists("./garage") :
+if os.path.exists("./garage") : #garage文档存放车库清单，避免文件重复
 	with open("./garage","r") as f:
 		garage.update(f.read().split())
+		
 synchronize_garage()
+	
 
 faillog=[]
 threads=[]
@@ -182,7 +193,6 @@ for classi,urlList in classification:
 				print('fail : '+img)
 				faillog.append(img)
 				continue
-			#if imgid in garage : continue
 			refer=referpfx+imgid
 			try:
 				toDownlist=[]
@@ -219,6 +229,18 @@ for log in faillog:print(log)
 
 with open("./garage","w") as f:
 	f.write(" ".join(garage))
+	
 synchronize_garage()
 
+
 listen_active=False
+
+"""
+--------------------backup----------------------
+header={
+	"cookies":'p_ab_id=0; p_ab_id_2=8; _ga=GA1.2.244081158.1482900312; device_token=2fa311bb23ce900bd65eca1037ab7610; PHPSESSID=4187518_555624b44264e95b2419bb0f73611586; module_orders_mypage=%5B%7B%22name%22%3A%22recommended_illusts%22%2C%22visible%22%3Atrue%7D%2C%7B%22name%22%3A%22everyone_new_illusts%22%2C%22visible%22%3Atrue%7D%2C%7B%22name%22%3A%22following_new_illusts%22%2C%22visible%22%3Atrue%7D%2C%7B%22name%22%3A%22mypixiv_new_illusts%22%2C%22visible%22%3Atrue%7D%2C%7B%22name%22%3A%22fanbox%22%2C%22visible%22%3Atrue%7D%2C%7B%22name%22%3A%22featured_tags%22%2C%22visible%22%3Atrue%7D%2C%7B%22name%22%3A%22contests%22%2C%22visible%22%3Atrue%7D%2C%7B%22name%22%3A%22sensei_courses%22%2C%22visible%22%3Atrue%7D%2C%7B%22name%22%3A%22spotlight%22%2C%22visible%22%3Atrue%7D%2C%7B%22name%22%3A%22booth_follow_items%22%2C%22visible%22%3Atrue%7D%5D; __utmt=1; __utma=235335808.244081158.1482900312.1488263964.1488271923.8; __utmb=235335808.3.10.1488271923; __utmc=235335808; __utmz=235335808.1483276352.5.4.utmcsr=galacg.me|utmccn=(referral)|utmcmd=referral|utmcct=/archives/60193.html; __utmv=235335808.|2=login%20ever=yes=1^3=plan=normal=1^4=p_ab_id_2=8=1^5=gender=male=1^6=user_id=4187518=1^9=illust_tag_placeholder=no=1^12=fanbox_subscribe_button=orange=1',
+	'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+	'Host':'i2.pixiv.net',
+	'Referer':'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=61577957'
+}
+"""
