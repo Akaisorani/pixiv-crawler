@@ -146,11 +146,12 @@ def random_one_by_classfi(classi,label="fate"):
 		
 		url=random.choice(classification[0][1])
 		r=session_requests.get(url)
-		if r.status_code!=200 and classi.lower()=='tag':
-			url=random.choice(complete_urllist([("tag",[(label,1)])])[0][1])
-			r=session_requests(url)
-			if r.status_code!=200:return False
 		imagelist=re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
+		if (not imagelist) and classi.lower()=='tag':
+			url=random.choice(complete_urllist([("tag",[(label,1)])])[0][1])
+			r=session_requests.get(url)
+			imagelist=re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
+			if r.status_code!=200 or not imagelist:return None	
 		img=random.choice(imagelist)
 		imgid=re.search('\d+(?=\_)',img).group(0)
 		toDownlist=imgid2source_url(imgid,"single",temp_save_root)
