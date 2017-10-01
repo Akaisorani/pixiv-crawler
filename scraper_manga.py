@@ -120,14 +120,39 @@ def testrecommen():	#未完成功能
 	token=tree.xpath("/pixiv.context.token")
 	print(token)
 	# "//input[@name='post_key']/@value"
-
+		
 def complete_urllist(clsf):
+	def get_artist_pagenum(artistid):
+		try:
+			url=url_artist_template%(artistid,1)
+			r=session_requests.get(url)
+			tree=html.fromstring(r.text)
+			res=tree.xpath("//span[@class='count-badge']/text()")
+			return (int(re.search(r'\d*',res[0]).group())+19)//20
+		except Exception as e:
+			traceback.print_exc()
+			return 3
+
+	def get_artist_artistname(artistid):
+		try:
+			url=url_artist_template%(artistid,1)
+			r=session_requests.get(url)
+			tree=html.fromstring(r.text)
+			res=tree.xpath("//a[@class='user-name']/text()")
+			return res[0]
+		except Exception as e:
+			traceback.print_exc()
+			return "artist_"+artistid
+	
 	newclsf=[]
 	for i in range(len(clsf)):
 		if clsf[i][0]=="tag": 
 			for tag,pagenum in clsf[i][1]:newclsf.append(("tag-"+tag,[url_tag_template%(tag,p) for p in range(1,pagenum+1)]))
 		elif clsf[i][0]=="画师":
-			for artistname,artistid,pagenum in clsf[i][1]:newclsf.append(("画师-"+artistname,[url_artist_template%(artistid,p) for p in range(1,pagenum+1)]))
+			for artistname,artistid,pagenum in clsf[i][1]:
+				if artistname=='?':artistname=get_artist_artistname(artistid)
+				if pagenum==-1:pagenum=get_artist_pagenum(artistid)
+				newclsf.append(("画师-"+artistname,[url_artist_template%(artistid,p) for p in range(1,pagenum+1)]))
 		else: newclsf.append(clsf[i])
 	return newclsf
 
@@ -208,20 +233,20 @@ faillog=[]
 def batch_download():
 	global listen_active
 	classification=[
-		("normalRank",[
-			pixiv_root+"ranking_area.php?type=detail&no=6",
-			pixiv_root+"ranking.php?mode=daily&p=1",
-			pixiv_root+"ranking.php?mode=daily&p=2",
-			pixiv_root+"ranking.php?mode=original"]),
-		("r18Rank",[
-			pixiv_root+"ranking.php?mode=daily_r18&p=1",
-			pixiv_root+"ranking.php?mode=male_r18&p=1",
-			pixiv_root+"ranking.php?mode=weekly_r18&p=1",
-			pixiv_root+"ranking.php?mode=weekly_r18&p=2"]),
-		("bookmark",[
-			pixiv_root+"bookmark_new_illust.php?p=%d"%i for i in range(1,10)]),
-		("tag",[("栗山未来",3),("メガネ",2)]),
-		("画师",[("小林ちさと","3016",5)]),
+		# ("normalRank",[
+			# pixiv_root+"ranking_area.php?type=detail&no=6",
+			# pixiv_root+"ranking.php?mode=daily&p=1",
+			# pixiv_root+"ranking.php?mode=daily&p=2",
+			# pixiv_root+"ranking.php?mode=original"]),
+		# ("r18Rank",[
+			# pixiv_root+"ranking.php?mode=daily_r18&p=1",
+			# pixiv_root+"ranking.php?mode=male_r18&p=1",
+			# pixiv_root+"ranking.php?mode=weekly_r18&p=1",
+			# pixiv_root+"ranking.php?mode=weekly_r18&p=2"]),
+		# ("bookmark",[
+			# pixiv_root+"bookmark_new_illust.php?p=%d"%i for i in range(1,10)]),
+		# ("tag",[("栗山未来",3),("メガネ",2)]),
+		("画师",[("?","72357",-1)]),
 	]
 
 	#----------PREDO
@@ -301,4 +326,6 @@ def batch_download():
 if __name__=="__main__":
 	batch_download()
 	# print(random_one_by_classfi("normalRank"))
+	# login()
+	# print(get_artist_artistname("21848"))
 
