@@ -21,3 +21,5 @@ or random a image by
 * it can save a **_garage file_** as a list of the image id you have downloaded to avoid download images repeatedly(because some ranklist doesn't change a lot next day)
 * it can also **_synchronize_** your garage file with your remote server(if you have) to make sure not download repeatedly on your different computers
 * for illustrator's illustration list, **_artist id_** must be provided, if set artist name as "?" then it will be found on the website, if set download page number as -1, then it will download all pages from this artist.
+* for some reasons, you know, it need **_proxies_** to visit pixiv.net in some area, so you can set proxies in the config.properties.
+* **_config.properties_** contains most configs so you needn't to edit the code source file.
