@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import requests,re,os,time,datetime,threading,copy,pickle,sys,paramiko,random,traceback
+import requests,pickle,paramiko
+import os,threading,datetime,sys,time,traceback
+import random,re,copy
+import configparser
 from lxml import html
 
 def login():
-	if os.path.exists("./cookies") :
-		with open("./cookies","rb") as f:
+	if os.path.exists(cookies_file) :
+		with open(cookies_file,"rb") as f:
 			session_requests.cookies=pickle.load(f)
 	r=session_requests.get(pixiv_root)
 	if r.status_code==200 and re.search('not-logged-in',r.text)==None:
@@ -18,11 +21,10 @@ def login():
 
 	tree=html.fromstring(r.text)
 	authenticity_token=list(set(tree.xpath("//input[@name='post_key']/@value")))[0]
-	with open("account","r") as f:	#account文件放在同目录下，包含一行:用户名(空格)密码
-		account=f.read().split()
+
 	payload={
-		'pixiv_id':account[0],
-		'password':account[1],
+		'pixiv_id':config['account']['username'],
+		'password':config['account']['password'],
 		'post_key':authenticity_token
 	}
 	r=session_requests.post(
@@ -34,7 +36,7 @@ def login():
 	if re.search('not-logged-in',r.text)!=None:raise IOError('login failed')
 	else:
 		print("log in")
-		with open("./cookies","wb") as f:	#第一次登录后将存档cookies用来登录
+		with open(cookies_file,"wb") as f:	#第一次登录后将存档cookies用来登录
 			pickle.dump(session_requests.cookies,f)
 
 def downloadImage(imgurl,filename,*,header=None,imgid=None,imgidext=None):
@@ -70,10 +72,10 @@ def listener():
 		if x=="q":
 			try:
 				garage_rlock.acquire()
-				if os.path.exists("./garage") :
-					with open("./garage","r") as f:
+				if os.path.exists(garage_file) :
+					with open(garage_file,"r") as f:
 						garage.update(f.read().split())
-				with open("./garage","w") as f:
+				with open(garage_file,"w") as f:
 					f.write(" ".join(garage))
 				print("local garage update complete")
 				synchronize_garage()
@@ -84,12 +86,13 @@ def listener():
 
 def synchronize_garage():	#当你使用多台计算机下载图片时，你可能需要将你的garage文件同步到你的服务器上以免重复
 	try:
-		private_key = paramiko.RSAKey.from_private_key_file("C:/Users/HanYue/.ssh/id_rsa")
-		transport = paramiko.Transport(("akaisora.tech",22))
-		transport.connect(username="root",pkey=private_key)
+		syncfg=config['remote_syn']
+		private_key = paramiko.RSAKey.from_private_key_file(syncfg['RSAKey_file'])
+		transport = paramiko.Transport((syncfg['host'],config.getint('remote_syn','port',fallback=22)))
+		transport.connect(username=syncfg['username'],pkey=private_key)
 		sftp = paramiko.SFTPClient.from_transport(transport)
 		
-		remotedir="/home/upload/pixiv_scrapy/"
+		remotedir=syncfg['remotedir']
 		if "garage" not in sftp.listdir(remotedir):
 			sftp.put("garage",remotedir+"garage")
 
@@ -104,7 +107,7 @@ def synchronize_garage():	#当你使用多台计算机下载图片时，你可�
 		
 		sftp.put("garage",remotedir+"garage")
 		
-		print("synchronize garage successed")
+		print("synchronize garage succeeded")
 	except Exception as e:
 		print("synchronize garage failed")
 		print(e)
@@ -148,11 +151,14 @@ def complete_urllist(clsf):
 	for i in range(len(clsf)):
 		if clsf[i][0]=="tag": 
 			for tag,pagenum in clsf[i][1]:newclsf.append(("tag-"+tag,[url_tag_template%(tag,p) for p in range(1,pagenum+1)]))
-		elif clsf[i][0]=="画师":
+		elif clsf[i][0]=="illustrator":
 			for artistname,artistid,pagenum in clsf[i][1]:
 				if artistname=='?':artistname=get_artist_artistname(artistid)
 				if pagenum==-1:pagenum=get_artist_pagenum(artistid)
-				newclsf.append(("画师-"+artistname,[url_artist_template%(artistid,p) for p in range(1,pagenum+1)]))
+				newclsf.append(("illustrator-"+artistname,[url_artist_template%(artistid,p) for p in range(1,pagenum+1)]))
+		elif clsf[i][0]=="bookmark":
+			pagenum=clsf[i][1][0]
+			newclsf.append(("bookmark",[url_bookmark_template%(p) for p in range(1,pagenum+1)]))
 		else: newclsf.append(clsf[i])
 	return newclsf
 
@@ -214,54 +220,76 @@ def imgid2source_url(imgid,mode="single",local_save=None):
 		print(e)
 		return []
 
-		
-#----------ARGS
+def load_config():
+	global garage_file,cookies_file
+	global local_save_root,temp_save_root
+	global proxies,classification
+	config.read("config.properties",encoding='utf-8')
+	
+	if config.getboolean('proxies','proxies_enable'):
+		proxies={'http': config['proxies']['socks'],'https': config['proxies']['socks']}
+	else:
+		proxies=None
+	
+	local_save_root=config['path']['local_save_root']
+	for ch in ['%y','%m','%d']:
+		local_save_root=local_save_root.replace(ch,datetime.datetime.now().strftime(ch))
+
+	temp_save_root=config['path']['temp_save_root']
+	
+	garage_file=config['data']['garage_file']
+	cookies_file=config['data']['cookies_file']
+	
+	classi_list=['normalRank','r18Rank','bookmark','tag','illustrator']
+	classification=[]
+	for classi in classi_list:
+		if config.getboolean('classification',classi):
+			classification.append((classi,eval(config['classification'][classi+'_list'])))
+
+	
+#----------Constants
 pixiv_root="https://www.pixiv.net/"
 referpfx=r'https://www.pixiv.net/member_illust.php?mode=medium&illust_id='
-local_save_root="D:\Image\图站\pixiv\\"+datetime.datetime.now().strftime("%y.%m.%d")+"\\"
-temp_save_root="./pixiv_temp/"
 url_tag_template=pixiv_root+"search.php?word=%s&order=date_d&p=%d"
 url_artist_template=pixiv_root+"member_illust.php?id=%s&type=all&p=%d"
+url_bookmark_template=pixiv_root+"bookmark_new_illust.php?p=%d"
 
-#global vars
+
+#----------global vars
+classification=[]
+local_save_root="./default_save_root/"
+temp_save_root="./pixiv_temp/"
+proxies=dict()
+garage_file="./garage"
+cookies_file="./cookies"
+config=configparser.ConfigParser(interpolation=None)
+load_config()
 session_requests=requests.session()
+session_requests.proxies=proxies
 write_rlock=threading.RLock()
 garage_rlock=threading.RLock()
 garage=set()
 faillog=[]
 
+
+
 def batch_download():
 	global listen_active
-	classification=[
-		# ("normalRank",[
-			# pixiv_root+"ranking_area.php?type=detail&no=6",
-			# pixiv_root+"ranking.php?mode=daily&p=1",
-			# pixiv_root+"ranking.php?mode=daily&p=2",
-			# pixiv_root+"ranking.php?mode=original"]),
-		# ("r18Rank",[
-			# pixiv_root+"ranking.php?mode=daily_r18&p=1",
-			# pixiv_root+"ranking.php?mode=male_r18&p=1",
-			# pixiv_root+"ranking.php?mode=weekly_r18&p=1",
-			# pixiv_root+"ranking.php?mode=weekly_r18&p=2"]),
-		# ("bookmark",[
-			# pixiv_root+"bookmark_new_illust.php?p=%d"%i for i in range(1,10)]),
-		# ("tag",[("栗山未来",3),("メガネ",2)]),
-		("画师",[("?","72357",-1)]),
-	]
-
+	global classification
 	#----------PREDO
 	# session_requests=requests.session()
 	try: login()
-	except Exception as e:print(e);print('Connect failed');exit(0)
+	except Exception as e:print(e);print('Connect failed');traceback.print_exc();exit(0)
 
 	#testrecommen()
 
 	if not os.path.exists(local_save_root) : os.makedirs(local_save_root)
 
 	# garage=set()
-	if os.path.exists("./garage") : #garage文档存放车库清单，避免文件重复
-		with open("./garage","r") as f:
+	if os.path.exists(garage_file) : #garage文档存放车库清单，避免文件重复
+		with open(garage_file,"r") as f:
 			garage.update(f.read().split())
+	
 	classification=complete_urllist(classification)
 	# exit(0)
 	synchronize_garage()
@@ -276,7 +304,7 @@ def batch_download():
 	t=threading.Thread(target=listener)
 	t.start()
 	for classi,urlList in classification:
-		local_save=local_save_root+classi+"\\"
+		local_save=local_save_root+classi+"/"
 		if not os.path.exists(local_save) : os.makedirs(local_save)
 		for pageUrl in urlList:	
 			try:
@@ -294,10 +322,10 @@ def batch_download():
 					faillog.append(img)
 					continue
 				refer=referpfx+imgid
-				toDownlist=imgid2source_url(imgid,"manga" if "画师" in classi else "single",local_save)
+				toDownlist=imgid2source_url(imgid,"manga" if "illustrator" in classi else "single",local_save)
 				for orgurl,filename in toDownlist:
 					imgidext=os.path.splitext(os.path.basename(filename))[0]
-					if (imgidext in garage) and not ("画师" in classi):continue
+					if (imgidext in garage) and not ("illustrator" in classi):continue
 					if os.path.exists(filename): 
 						garage.add(imgidext)
 						continue
@@ -314,7 +342,7 @@ def batch_download():
 	print('-------------------------faillog-------------------------')
 	for log in faillog:print(log)
 
-	with open("./garage","w") as f:
+	with open(garage_file,"w") as f:
 		f.write(" ".join(garage))
 		
 	synchronize_garage()
