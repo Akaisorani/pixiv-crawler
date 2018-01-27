@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import requests,pickle,paramiko
+import requests,pickle,json
 import os,threading,datetime,sys,time,traceback
 import random,re,copy
 import configparser
+from html import unescape
 from lxml import html
 
 def login():
@@ -21,7 +22,7 @@ def login():
 
 	tree=html.fromstring(r.text)
 	authenticity_token=list(set(tree.xpath("//input[@name='post_key']/@value")))[0]
-
+	print(type(authenticity_token))
 	payload={
 		'pixiv_id':config['account']['username'],
 		'password':config['account']['password'],
@@ -87,6 +88,7 @@ def listener():
 def synchronize_garage():	#当你使用多台计算机下载图片时，你可能需要将你的garage文件同步到你的服务器上以免重复
 	try:
 		syncfg=config['remote_syn']
+		if not syncfg.getboolean('syn_enable'): return
 		private_key = paramiko.RSAKey.from_private_key_file(syncfg['RSAKey_file'])
 		transport = paramiko.Transport((syncfg['host'],config.getint('remote_syn','port',fallback=22)))
 		transport.connect(username=syncfg['username'],pkey=private_key)
@@ -162,11 +164,35 @@ def complete_urllist(clsf):
 		else: newclsf.append(clsf[i])
 	return newclsf
 
+	
+def get_master_imagelist_from_resp(classi,r):
+	if classi != "tag": return re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
+	try:
+		tree=html.fromstring(r.text)
+		res=tree.xpath("//input[@data-items]/@data-items")[0]
+		js=json.loads(unescape(res))
+		retlist=list(map(lambda x:x['illustId'],js))
+		return retlist
+	except Exception as e:
+		traceback.print_exc()
+		return []
+
+def check_tempfile_overflow(maxitems):
+	if not os.path.exists(temp_save_root) : os.makedirs(temp_save_root)
+	temp_file_list=os.listdir(temp_save_root)
+
+	if(len(temp_file_list)>maxitems):
+		for filename in temp_file_list:os.remove(temp_save_root+filename)
+		print("cleared temp_save_root")
+	
+		
 def random_one_by_classfi(classi,label="fate"):
 	try:
 		if classi=="tag" and "r-18" not in label.lower():label+=" -r-18"
 		
+		check_tempfile_overflow(config.getint('DEFAULT','max_tempfile_number'))
 		if not os.path.exists(temp_save_root) : os.makedirs(temp_save_root)
+		
 		if classi.lower()=="normalrank":classification=[("normalRank",[pixiv_root+"ranking.php?mode=daily&p=1",pixiv_root+"ranking.php?mode=daily&p=2",pixiv_root+"ranking.php?mode=original"])]
 		elif classi.lower()=="tag":classification=complete_urllist([("tag",[(label,5)])])
 		elif classi.lower()=="r18rank":classification=complete_urllist([("r18Rank",[pixiv_root+"ranking.php?mode=daily_r18&p=1",pixiv_root+"ranking.php?mode=male_r18&p=1",pixiv_root+"ranking.php?mode=weekly_r18&p=1",pixiv_root+"ranking.php?mode=weekly_r18&p=2"])])
@@ -177,14 +203,15 @@ def random_one_by_classfi(classi,label="fate"):
 		
 		url=random.choice(classification[0][1])
 		r=session_requests.get(url)
-		imagelist=re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
+		#imagelist=re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
+		imagelist=get_master_imagelist_from_resp(classi.lower(),r)
 		if (not imagelist) and classi.lower()=='tag':
 			url=random.choice(complete_urllist([("tag",[(label,1)])])[0][1])
 			r=session_requests.get(url)
-			imagelist=re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
+			imagelist=get_master_imagelist_from_resp(classi.lower(),r)
 			if r.status_code!=200 or not imagelist:return None	
 		img=random.choice(imagelist)
-		imgid=re.search('\d+(?=\_)',img).group(0)
+		imgid=re.search('\d+(?=(_|$))',img).group(0)
 		toDownlist=imgid2source_url(imgid,"single",temp_save_root)
 		if len(toDownlist)>0: orgurl,filename=toDownlist[0]
 		else :return None
@@ -264,6 +291,7 @@ garage_file="./garage"
 cookies_file="./cookies"
 config=configparser.ConfigParser(interpolation=None)
 load_config()
+if config.getboolean('remote_syn','syn_enable'): import paramiko
 session_requests=requests.session()
 session_requests.proxies=proxies
 write_rlock=threading.RLock()
@@ -309,14 +337,15 @@ def batch_download():
 		for pageUrl in urlList:	
 			try:
 				rankPage=session_requests.get(pageUrl)
-				regex=r'(?<=img-master/img)(.*?)(?=_master)'
-				imagelist=re.findall(regex,rankPage.text)
+				#regex=r'(?<=img-master/img)(.*?)(?=_master)'
+				print(classi)
+				imagelist=get_master_imagelist_from_resp("tag" if "tag" in classi else "others_for_batch",rankPage)
 			except Exception as e:
 				faillog.append(pageUrl+"Pagefail")
 				continue
 			for img in imagelist:
 				try:
-					imgid=re.search('\d+(?=\_)',img).group(0)
+					imgid=re.search('\d+(?=(_|$))',img).group(0)
 				except Exception as e:
 					print('fail : '+img)
 					faillog.append(img)
@@ -353,7 +382,7 @@ def batch_download():
 	
 if __name__=="__main__":
 	batch_download()
-	# print(random_one_by_classfi("normalRank"))
+	# print(random_one_by_classfi("tag","fate"))
 	# login()
 	# print(get_artist_artistname("21848"))
 
