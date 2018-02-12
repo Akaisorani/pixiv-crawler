@@ -166,12 +166,19 @@ def complete_urllist(clsf):
 
 	
 def get_master_imagelist_from_resp(classi,r):
-	if classi != "tag": return re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
 	try:
-		tree=html.fromstring(r.text)
-		res=tree.xpath("//input[@data-items]/@data-items")[0]
-		js=json.loads(unescape(res))
-		retlist=list(map(lambda x:x['illustId'],js))
+		if classi=="tag":
+			tree=html.fromstring(r.text)
+			res=tree.xpath("//input[@data-items]/@data-items")[0]
+			js=json.loads(unescape(res))
+			retlist=list(map(lambda x:x['illustId'],js))
+		elif classi=="bookmark":
+			tree=html.fromstring(r.text)
+			res=tree.xpath("//div[@data-items]/@data-items")[0]
+			js=json.loads(unescape(res))
+			retlist=list(map(lambda x:x['illustId'],js))
+		else:
+			retlist=re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
 		return retlist
 	except Exception as e:
 		traceback.print_exc()
@@ -334,12 +341,12 @@ def batch_download():
 	for classi,urlList in classification:
 		local_save=local_save_root+classi+"/"
 		if not os.path.exists(local_save) : os.makedirs(local_save)
+		classi_mode="tag" if "tag" in classi else "illustrator" if "illustrator" in classi else classi
 		for pageUrl in urlList:	
 			try:
 				rankPage=session_requests.get(pageUrl)
 				#regex=r'(?<=img-master/img)(.*?)(?=_master)'
-				print(classi)
-				imagelist=get_master_imagelist_from_resp("tag" if "tag" in classi else "others_for_batch",rankPage)
+				imagelist=get_master_imagelist_from_resp(classi_mode,rankPage)
 			except Exception as e:
 				faillog.append(pageUrl+"Pagefail")
 				continue
@@ -351,10 +358,10 @@ def batch_download():
 					faillog.append(img)
 					continue
 				refer=referpfx+imgid
-				toDownlist=imgid2source_url(imgid,"manga" if "illustrator" in classi else "single",local_save)
+				toDownlist=imgid2source_url(imgid,"manga" if "illustrator"==classi_mode else "single",local_save)
 				for orgurl,filename in toDownlist:
 					imgidext=os.path.splitext(os.path.basename(filename))[0]
-					if (imgidext in garage) and not ("illustrator" in classi):continue
+					if (imgidext in garage) and not ("illustrator"==classi):continue
 					if os.path.exists(filename): 
 						garage.add(imgidext)
 						continue
