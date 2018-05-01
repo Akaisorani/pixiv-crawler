@@ -240,8 +240,12 @@ def imgid2source_url(imgid,mode="single",local_save=None):
 	try:
 		toDownlist=[]
 		r=session_requests.get(refer,timeout=25)
-		match=re.search('(?<=data-src=").*?img-original.*?\.(jpg|png)',r.text)
-		if match : toDownlist.append((match.group(0),local_save+os.path.split(match.group(0))[1]))
+		match_manga=re.search('(?<=href=").*?mode=manga',r.text)
+		if not match_manga :
+			urls=re.search('(?<="urls":){.*?}',r.text);
+			if urls:
+				js=json.loads(unescape(urls.group(0)))
+				if 'original' in js: toDownlist.append((js['original'],local_save+os.path.split(js['original'])[1]))
 		else:
 			for i in range(0,100 if mode=="manga" else 1):
 				r=session_requests.get("https://www.pixiv.net/member_illust.php?mode=manga_big&illust_id="+imgid+"&page=%d"%i)
@@ -358,11 +362,17 @@ def batch_download():
 					faillog.append(img)
 					continue
 				refer=referpfx+imgid
+				if("illustrator"!=classi_mode and imgid+"_p0" in garage):
+					print("Skipped %s"%imgid)
+					continue					
 				toDownlist=imgid2source_url(imgid,"manga" if "illustrator"==classi_mode else "single",local_save)
 				for orgurl,filename in toDownlist:
 					imgidext=os.path.splitext(os.path.basename(filename))[0]
-					if (imgidext in garage) and not ("illustrator"==classi):continue
-					if os.path.exists(filename): 
+					if (imgidext in garage) and not ("illustrator"==classi_mode):
+						print("Skipped %s"%imgid)
+						continue
+					if os.path.exists(filename):
+						print("image file %s existed"%imgid)
 						garage.add(imgidext)
 						continue
 					print("<"+orgurl+">")			
@@ -385,11 +395,11 @@ def batch_download():
 
 
 	listen_active=False
-	
+	print("END")
 	
 if __name__=="__main__":
 	batch_download()
-	# print(random_one_by_classfi("tag","fate"))
+	# print(random_one_by_classfi("tag","azurlane"))
 	# login()
 	# print(get_artist_artistname("21848"))
 
