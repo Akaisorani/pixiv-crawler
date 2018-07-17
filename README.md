@@ -1,18 +1,45 @@
 # pixiv-crawler
 pixiv image crawler
 
-## functions
+Github [https://github.com/Akaisorani/pixiv-crawler](https://github.com/Akaisorani/pixiv-crawler)
+## How to install
+
+```
+pip install pixivcrawler
+```
+
+## Functions
 
 Download image by
 * ranklist such as dailyrank
 * tags
 * illustrator's illustration list
+* bookmark list
+* DIY urls
 
 or random a image by
 * ranklist
 * tags
 
-## features
+## How to use
+
+### Example
+
+```
+import pixivcrawler as pc
+
+pc.set_value('username','your account name')
+pc.set_value('password','your account password')
+# pc.set_value('socks','127.0.0.1:8388')
+pc.login()
+
+pc.dl_rank_daily(20)
+pc.dl_artist(4187518,pic_num=-1,deep_into_manga=False)
+pc.dl_tag('azur_lane',100)
+pc.dl_diy_urls(['https://www.pixiv.net/ranking.php?mode=weekly',100)
+```
+
+## ~~Features~~
 
 * it can download images by **_8 threads_**(the maxnumber of threads can be adjusted) to accelerate the progress
 * in most case it download the first picture of a **_manga_** type illustration, but in the illustrator's illustration list it will download the **_full manga_**(of course you can adjust the condition to decide when to download full)
@@ -23,3 +50,32 @@ or random a image by
 * for illustrator's illustration list, **_artist id_** must be provided, if set artist name as "?" then it will be found on the website, if set download page number as -1, then it will download all pages from this artist.
 * for some reasons, you know, it need **_proxies_** to visit pixiv.net in some area, so you can set proxies in the config.properties.
 * **_config.properties_** contains most configs so you needn't to edit the code source file.
+
+## Function List
+```
+login (save_cookies=True)
+set_value (value_name,value)
+get_value (value_name,value)
+save_garage (garage_file = None)
+dl_tag (tag,pic_num,deep_into_manga=False,add_classname_in_path=True)
+dl_artist (artist_id,pic_num,deep_into_manga=True,add_classname_in_path=True)
+dl_bookmark (pic_num,deep_into_manga=True,add_classname_in_path=True)
+dl_rank_global (pic_num,deep_into_manga=False,add_classname_in_path=True)
+dl_rank_daily (pic_num,deep_into_manga=False,add_classname_in_path=True)
+dl_rank_weekly (pic_num,deep_into_manga=False,add_classname_in_path=True)
+dl_rank_original (pic_num,deep_into_manga=False,add_classname_in_path=True)
+...
+dl_diy_urls (urls,pic_num,deep_into_manga=False,add_classname_in_path=True)
+random_one_by_classfi (classi,label="")
+```
+
+## Attribute List
+```
+username
+password
+local_save_root
+garage_file
+cookies_file
+max_thread_num
+socks: set None if not use
+```
