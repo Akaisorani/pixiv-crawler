@@ -5,7 +5,7 @@ Github [https://github.com/Akaisorani/pixiv-crawler](https://github.com/Akaisora
 ## How to install
 
 ```
-pip install pixivcrawler
+pip install pixiv_crawler
 ```
 
 ## Functions
@@ -26,7 +26,7 @@ or random a image by
 ### Example
 
 ```
-import pixivcrawler as pc
+import pixiv_crawler as pc
 
 pc.set_value('username','your account name')
 pc.set_value('password','your account password')
