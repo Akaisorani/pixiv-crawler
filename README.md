@@ -36,7 +36,7 @@ pc.login()
 pc.dl_rank_daily(20)
 pc.dl_artist(4187518,pic_num=-1,deep_into_manga=False)
 pc.dl_tag('azur lane',100)
-pc.dl_diy_urls(['https://www.pixiv.net/ranking.php?mode=weekly',100)
+pc.dl_diy_urls(['https://www.pixiv.net/ranking.php?mode=weekly'],100)
 ```
 
 ## ~~Features~~
