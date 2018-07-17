@@ -440,7 +440,7 @@ def set_value(value_name,value):
 	else:
 		setattr(config,value_name,value)
 		
-def get_value(value_name,value):
+def get_value(value_name):
 	'''Legal attributes:
 		username
 		password
@@ -452,7 +452,7 @@ def get_value(value_name,value):
 	'''
 	if value_name not in ['username','password','local_save_root','garage_file','cookies_file','max_thread_num','socks']:
 		return None
-	return getattr(config,value_name,value)
+	return getattr(config,value_name)
 	
 def save_garage(garage_file = None):
 	'''Save downloaded image list, to avoid repeating downloading'''
