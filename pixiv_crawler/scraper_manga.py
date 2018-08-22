@@ -436,6 +436,8 @@ def set_value(value_name,value):
 			config.proxies_enable=True
 	elif value_name=="local_save_root":
 		if value[-1]!='/':value=value+"/"
+		for ch in ['%y','%m','%d','%H','%M','%S']:
+			if ch in value: value=value.replace(ch,datetime.datetime.now().strftime(ch))
 		setattr(config,value_name,value)
 	else:
 		setattr(config,value_name,value)
