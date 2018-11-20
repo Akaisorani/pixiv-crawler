@@ -21,7 +21,7 @@ cookies_file = "./cookies.txt"
 
 ["classification"]
 pic_per_page_tag=40
-pic_per_page_illustrator=20
+pic_per_page_illustrator=48
 pic_per_page_bookmark=20
 pic_per_page_rank_global=100
 pic_per_page_rank_daily=50
@@ -52,6 +52,7 @@ pixiv_root="https://www.pixiv.net/"
 
 url_tag_template=pixiv_root+"search.php?word=%s&order=date_d&p=%d"
 url_artist_template=pixiv_root+"member_illust.php?id=%s&type=all&p=%d"
+url_artist_all_template=pixiv_root+"ajax/user/%s/profile/all"
 url_bookmark_template=pixiv_root+"bookmark_new_illust.php?p=%d"
 # rank_global_list=1
 url_rank_global_template=pixiv_root+"ranking_area.php?type=detail&no=6"

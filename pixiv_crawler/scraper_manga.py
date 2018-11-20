@@ -32,8 +32,9 @@ def login(save_cookies=True):
 	if not config.password:raise Exception('Please set password')
 	
 	login_url='https://accounts.pixiv.net/login'
+	
 	r=session_requests.get(login_url)
-
+	
 	tree=html.fromstring(r.text)
 	authenticity_token=list(set(tree.xpath("//input[@name='post_key']/@value")))[0]
 	payload={
@@ -141,24 +142,24 @@ def testrecommen():	#未完成功能
 	# "//input[@name='post_key']/@value"
 		
 def complete_urllist(clsf):
-	def get_artist_pagenum(artistid):
+	def get_artist_imglist(artistid):
 		try:
-			url=config.url_artist_template%(artistid,1)
+			url=config.url_artist_all_template%(artistid)
 			r=session_requests.get(url)
-			tree=html.fromstring(r.text)
-			res=tree.xpath("//span[@class='count-badge']/text()")
-			return (int(re.search(r'\d*',res[0]).group())+19)//20
+			js=r.json()
+			imglist=list(dict(js['body']['illusts']).keys())+list(dict(js['body']['manga']).keys())
+			return imglist
 		except Exception as e:
 			traceback.print_exc()
-			return 3
-
+			return []		
 	def get_artist_artistname(artistid):
 		try:
 			url=config.url_artist_template%(artistid,1)
 			r=session_requests.get(url)
-			tree=html.fromstring(r.text)
-			res=tree.xpath("//a[@class='user-name']/text()")
-			return res[0]
+			res=re.search(r'"userId":"\d+","name":"([^"]*)"?',r.text)
+			artist_name=res.group(1)
+			artist_name=artist_name.encode('utf-8').decode('unicode_escape')
+			return artist_name
 		except Exception as e:
 			traceback.print_exc()
 			return "artist_"+artistid
@@ -169,9 +170,10 @@ def complete_urllist(clsf):
 			for tag,pagenum in item_list:newclsf.append(("tag-"+tag,[config.url_tag_template%(tag,p) for p in range(1,pagenum+1)]))
 		elif clsf_name=="illustrator":
 			for artistname,artistid,pagenum in item_list:
-				if artistname=='?':artistname=get_artist_artistname(artistid)
-				if pagenum==-1:pagenum=get_artist_pagenum(artistid)
-				newclsf.append(("illustrator-"+artistname,[config.url_artist_template%(artistid,p) for p in range(1,pagenum+1)]))
+				if artistname=='?':
+					artistname=get_artist_artistname(artistid)
+				imglist=get_artist_imglist(artistid)
+				newclsf.append(("illustrator-"+artistname,[imglist]))
 		elif clsf_name=="bookmark":
 			#对于bookmark，后者表示页数
 			pagenum=item_list
@@ -353,9 +355,11 @@ def batch_download(classification,max_pic_num=100,deep_into_manga=False,add_clas
 		classi_mode="tag" if "tag" in classi else "illustrator" if "illustrator" in classi else classi
 		for pageUrl in urlList:	
 			try:
-				rankPage=session_requests.get(pageUrl)
-				#regex=r'(?<=img-master/img)(.*?)(?=_master)'
-				imagelist=get_master_imagelist_from_resp(classi_mode,rankPage)
+				if classi_mode=="illustrator":
+					imagelist=pageUrl
+				else:
+					rankPage=session_requests.get(pageUrl)
+					imagelist=get_master_imagelist_from_resp(classi_mode,rankPage)
 			except Exception as e:
 				faillog.append(pageUrl+"Pagefail")
 				continue
@@ -429,11 +433,15 @@ def set_value(value_name,value):
 	if value_name not in ['username','password','local_save_root','garage_file','cookies_file','max_thread_num','socks']:
 		raise ValueError("Illegal Attribute")
 	if value_name=="socks":
-		if not value:config.proxies_enable=False
+		if not value:
+			config.proxies_enable=False
+			session_requests.proxies=None
 		else:
 			value.replace("socks5h://","")
 			setattr(config,value_name,"socks5h://"+value)
 			config.proxies_enable=True
+			proxies={'http': config.socks,'https': config.socks}
+			session_requests.proxies=proxies
 	elif value_name=="local_save_root":
 		if value[-1]!='/':value=value+"/"
 		for ch in ['%y','%m','%d','%H','%M','%S']:
