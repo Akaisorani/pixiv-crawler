@@ -48,7 +48,7 @@ def login(save_cookies=True):
 		headers=dict(referer=login_url)
 	)
 	r=session_requests.get(pixiv_root)
-	if re.search('not-logged-in',r.text)!=None:raise IOError('login failed')
+	if re.search('not-logged-in',r.text)!=None:raise IOError('login failed, may deleting the cookies file can help')
 	else:
 		#print("log in")
 		if save_cookies:
@@ -437,7 +437,7 @@ def set_value(value_name,value):
 			config.proxies_enable=False
 			session_requests.proxies=None
 		else:
-			value.replace("socks5h://","")
+			value=value.replace("socks5h://","")
 			setattr(config,value_name,"socks5h://"+value)
 			config.proxies_enable=True
 			proxies={'http': config.socks,'https': config.socks}
