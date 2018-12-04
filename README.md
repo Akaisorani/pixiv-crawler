@@ -14,7 +14,7 @@ Download image by
 * ranklist such as dailyrank
 * tags
 * illustrator's illustration list
-* bookmark list
+* your bookmark list
 * DIY urls
 
 or random a image by
