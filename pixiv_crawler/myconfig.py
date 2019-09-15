@@ -71,3 +71,8 @@ sftp_host = ""
 sftp_port = 22
 sftp_username = ""
 sftp_remotedir = ""
+
+["browser"]
+phantomjs = ""
+firefox=""
+chrome=""

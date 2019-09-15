@@ -5,13 +5,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pixiv_crawler",
-    version="0.0.5",
+    version="0.0.7",
     author="Akaisorani",
     author_email="cavsolar@gmail.com",
     description="A tool to download pixiv pictures",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Akaisorani/pixiv-crawler",
+	install_requires = ['requests>=2.18.4','selenium'],
     packages=setuptools.find_packages(),
     classifiers=(
         "Programming Language :: Python :: 3",

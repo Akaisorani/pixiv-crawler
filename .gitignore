@@ -3,4 +3,5 @@ dist/
 pixiv_crawler.egg-info
 temp/
 /test*
+ghostdriver.log
 __pycache__/

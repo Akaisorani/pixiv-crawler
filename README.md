@@ -8,6 +8,8 @@ Github [https://github.com/Akaisorani/pixiv-crawler](https://github.com/Akaisora
 pip install pixiv_crawler
 ```
 
+To pass the captcha in login, we use selenium+phantomjs. So you need to install selenium and phantomjs (or chrome/firefox with headless model).
+
 ## Functions
 
 Download image by
@@ -34,6 +36,7 @@ pc.set_value('password','your account password')
 # pc.set_value("local_save_root","./%y.%m.%d")
 # pc.set_value("cookies_file","./cookies.txt")
 # pc.set_value("garage_file","./garage.txt")
+pc.set_value("phantomjs","/usr/local/bin/phantomjs")
 pc.login()
 
 pc.dl_rank_daily(20)
@@ -82,4 +85,7 @@ garage_file
 cookies_file
 max_thread_num
 socks: set None if not use
+phantomjs
+firefox
+chrome
 ```
