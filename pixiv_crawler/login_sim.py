@@ -41,7 +41,7 @@ def login_for_cookies(config):
     # print(driver.page_source)
     
     try:
-        element = WebDriverWait(driver, 30).until(
+        element = WebDriverWait(driver, 60).until(
                 EC.presence_of_element_located((By.ID, "page-mypage"))
             )
     except Exception as e:

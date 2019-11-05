@@ -23,9 +23,14 @@ def login(save_cookies=True):
         except Exception as e:
             print("load cookies failed, try log in")
             traceback.print_exc()
-    r=session_requests.get(pixiv_root)
-
-    if r.status_code==200 and re.search('not-logged-in',r.text)==None:
+    r=None
+    try:
+        r=session_requests.get(pixiv_root)
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        
+    if r is not None and r.status_code==200 and re.search('not-logged-in',r.text)==None:
         print("loaded cookies")
         return
     
@@ -272,12 +277,14 @@ def imgid2source_url(imgid,mode="single",local_save=None):
     try:
         toDownlist=[]
         r=session_requests.get(refer,timeout=25)
-        #text=imgid+":{\"abc\":123}},user"
-        jsdata=re.search('(?<='+imgid+':).*?}(?= },user)',r.text);
-        if jsdata:js=json.loads(unescape(jsdata.group(0)))
+        tree=html.fromstring(r.text)
+        content=tree.xpath("/html/head/meta[@id='meta-preload-data']/@content")[0]
+        jsdata=content
+        if jsdata:js=json.loads(jsdata)
         else:
             print("load jsdata fail")
             return []
+        js=js["illust"][imgid]
         pageCount=js["pageCount"]
         match_manga=pageCount>1
         original_url=js['urls']['original']
