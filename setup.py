@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pixiv_crawler",
-    version="0.0.8",
+    version="0.0.9",
     author="Akaisorani",
     author_email="cavsolar@gmail.com",
     description="A tool to download pixiv pictures",

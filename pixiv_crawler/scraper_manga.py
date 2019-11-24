@@ -56,6 +56,7 @@ def login(save_cookies=True):
         # headers=dict(referer=login_url)
     # )
     
+    print("try log in")
     cookies_dict=login_for_cookies(config)
     cookiejar=requests.utils.cookiejar_from_dict(cookies_dict, cookiejar=None, overwrite=True)
     session_requests.cookies=cookiejar
@@ -203,11 +204,19 @@ def complete_urllist(clsf):
     
 def get_master_imagelist_from_resp(classi,r):
     try:
+        # print(r.text)
+        print(r.url)
         if classi=="tag":
-            tree=html.fromstring(r.text)
-            res=tree.xpath("//input[@data-items]/@data-items")[0]
-            js=json.loads(unescape(res))
-            retlist=list(map(lambda x:x['illustId'],js))
+            url=r.url
+            url=url.replace("/artworks","")
+            url=url.replace("/tags/","/ajax/search/artworks/")
+            ajax=url
+            r=session_requests.get(ajax)
+            js=r.json()
+            popular_permen_list=list(map(lambda x:x['illustId'],js['body']['popular']['permanent']))
+            popular_rec_list=list(map(lambda x:x['illustId'],js['body']['popular']['recent']))
+            data_list=list(map(lambda x:x['illustId'],js['body']['illustManga']['data']))
+            retlist=popular_permen_list+popular_rec_list+data_list
         elif classi=="bookmark":
             tree=html.fromstring(r.text)
             res=tree.xpath("//div[@data-items]/@data-items")[0]
