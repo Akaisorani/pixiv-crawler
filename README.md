@@ -36,7 +36,7 @@ pc.set_value('password','your account password')
 # pc.set_value("local_save_root","./%y.%m.%d")
 # pc.set_value("cookies_file","./cookies.txt")
 # pc.set_value("garage_file","./garage.txt")
-pc.set_value("phantomjs","/usr/local/bin/phantomjs")
+pc.set_value("phantomjs","/usr/local/bin/phantomjs") # for simulating log in process. the path will be (bala...)/phantomjs.exe on Windows
 pc.login()
 
 pc.dl_rank_daily(20)
