@@ -203,27 +203,46 @@ def complete_urllist(clsf):
 
     
 def get_master_imagelist_from_resp(classi,r):
+    def gmifr_tag(r):
+        url=r.url
+        # url=url.replace("/artworks","")
+        url=re.sub(r"/[a-zA-Z]+?(?=\?)","",url,count=1)
+        url=url.replace("/tags/","/ajax/search/artworks/")
+        ajax=url
+        r=session_requests.get(ajax)
+        js=r.json()
+        popular_permen_list=list(map(lambda x:x['illustId'],js['body']['popular']['permanent']))
+        popular_rec_list=list(map(lambda x:x['illustId'],js['body']['popular']['recent']))
+        data_list=list(map(lambda x:x['illustId'],js['body']['illustManga']['data']))
+        retlist=popular_permen_list+popular_rec_list+data_list
+        return retlist
+
+    def gmifr_bookmark(r):
+        tree=html.fromstring(r.text)
+        res=tree.xpath("//div[@data-items]/@data-items")[0]
+        js=json.loads(unescape(res))
+        retlist=list(map(lambda x:x['illustId'],js))
+        return retlist
     try:
         # print(r.text)
         print(r.url)
         if classi=="tag":
-            url=r.url
-            url=url.replace("/artworks","")
-            url=url.replace("/tags/","/ajax/search/artworks/")
-            ajax=url
-            r=session_requests.get(ajax)
-            js=r.json()
-            popular_permen_list=list(map(lambda x:x['illustId'],js['body']['popular']['permanent']))
-            popular_rec_list=list(map(lambda x:x['illustId'],js['body']['popular']['recent']))
-            data_list=list(map(lambda x:x['illustId'],js['body']['illustManga']['data']))
-            retlist=popular_permen_list+popular_rec_list+data_list
+            retlist=gmifr_tag(r)
         elif classi=="bookmark":
-            tree=html.fromstring(r.text)
-            res=tree.xpath("//div[@data-items]/@data-items")[0]
-            js=json.loads(unescape(res))
-            retlist=list(map(lambda x:x['illustId'],js))
+            retlist=gmifr_bookmark(r)
         else:
             retlist=re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
+            try:
+                retlist_temp=gmifr_tag(r)
+                retlist.extend(retlist_temp)
+            except Exception as e:
+                pass
+            try:
+                retlist_temp=gmifr_bookmark(r)
+                retlist.extend(retlist_temp)
+            except Exception as e:
+                pass
+            retlist=list(set(retlist))         
         return retlist
     except Exception as e:
         traceback.print_exc()
