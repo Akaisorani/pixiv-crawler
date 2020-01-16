@@ -71,6 +71,7 @@ dl_rank_global (pic_num,deep_into_manga=False,add_classname_in_path=True)
 dl_rank_daily (pic_num,deep_into_manga=False,add_classname_in_path=True)
 dl_rank_weekly (pic_num,deep_into_manga=False,add_classname_in_path=True)
 dl_rank_original (pic_num,deep_into_manga=False,add_classname_in_path=True)
+dl_rank_daily_r18(pic_num,deep_into_manga=False,add_classname_in_path=True)
 ...
 dl_diy_urls (urls,pic_num,deep_into_manga=False,add_classname_in_path=True)
 random_one_by_classfi (classi,label="")
