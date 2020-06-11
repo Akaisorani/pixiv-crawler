@@ -34,7 +34,7 @@ pc.set_value('username','your account name')
 pc.set_value('password','your account password')
 # pc.set_value('socks','127.0.0.1:8388')
 # pc.set_value("local_save_root","./%y.%m.%d")
-# pc.set_value("cookies_file","./cookies.txt")
+# pc.set_value("cookies_file","./cookies.txt") # cookies in json format
 # pc.set_value("garage_file","./garage.txt")
 pc.set_value("phantomjs","/usr/local/bin/phantomjs") # for simulating log in process. the path will be (bala...)/phantomjs.exe on Windows
 pc.login()
@@ -71,6 +71,7 @@ dl_rank_global (pic_num,deep_into_manga=False,add_classname_in_path=True)
 dl_rank_daily (pic_num,deep_into_manga=False,add_classname_in_path=True)
 dl_rank_weekly (pic_num,deep_into_manga=False,add_classname_in_path=True)
 dl_rank_original (pic_num,deep_into_manga=False,add_classname_in_path=True)
+dl_rank_daily_r18(pic_num,deep_into_manga=False,add_classname_in_path=True)
 ...
 dl_diy_urls (urls,pic_num,deep_into_manga=False,add_classname_in_path=True)
 random_one_by_classfi (classi,label="")
@@ -89,3 +90,6 @@ phantomjs
 firefox
 chrome
 ```
+
+## Tips
+1. If the log in process failed (because of reCAPTCHA), you can copy your cookies from your browser into cookies.txt in json format. Then the pixiv_crawler will log in with cookies.
