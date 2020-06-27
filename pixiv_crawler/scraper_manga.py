@@ -207,6 +207,7 @@ def get_master_imagelist_from_resp(classi,r):
         url=r.url
         # url=url.replace("/artworks","")
         url=re.sub(r"/[a-zA-Z]+?(?=\?)","",url,count=1)
+        url=re.sub(r"(?<=www\.pixiv\.net)/[a-zA-Z]+?(?=/tags)","",url,count=1)
         url=url.replace("/tags/","/ajax/search/artworks/")
         ajax=url
         r=session_requests.get(ajax)
