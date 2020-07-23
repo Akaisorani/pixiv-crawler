@@ -210,12 +210,17 @@ def get_master_imagelist_from_resp(classi,r):
         url=re.sub(r"(?<=www\.pixiv\.net)/[a-zA-Z]+?(?=/tags)","",url,count=1)
         url=url.replace("/tags/","/ajax/search/artworks/")
         ajax=url
+        # print(ajax)
         r=session_requests.get(ajax)
         js=r.json()
+        # print("========================")
+        # print(r.text)
+        # print("========================")
         popular_permen_list=list(map(lambda x:x['illustId'],js['body']['popular']['permanent']))
         popular_rec_list=list(map(lambda x:x['illustId'],js['body']['popular']['recent']))
         data_list=list(map(lambda x:x['illustId'],js['body']['illustManga']['data']))
-        retlist=popular_permen_list+popular_rec_list+data_list
+        # print(len(popular_permen_list),len(popular_rec_list),len(data_list))
+        retlist=popular_rec_list+popular_permen_list+data_list
         return retlist
 
     def gmifr_bookmark(r):
@@ -261,7 +266,7 @@ def check_tempfile_overflow(maxitems):
 def random_one_by_classfi(classi,label="fate"):
     '''classi= "normalrank" or "tag" or "r18rank" '''
     try:
-        if classi=="tag" and "r-18" not in label.lower():label+=" -r-18"
+        # if classi=="tag" and "r-18" not in label.lower():label+=" -r-18"
         
         check_tempfile_overflow(config.max_tempfile_number)
         if not os.path.exists(config.local_save_root) : os.makedirs(config.local_save_root)
@@ -283,7 +288,18 @@ def random_one_by_classfi(classi,label="fate"):
             r=session_requests.get(url)
             imagelist=get_master_imagelist_from_resp(classi.lower(),r)
             if r.status_code!=200 or not imagelist:return None    
-        img=random.choice(imagelist)
+        if classi.lower()=="tag" and len(imagelist)>60:
+            rndi=random.randint(1,100)
+            if rndi<=40:
+                img=random.choice(imagelist[:7])
+            elif rndi<=50:
+                img=random.choice(imagelist[7:13])
+            else:
+                img=random.choice(imagelist[13:])
+            # print(len(imagelist))
+        else:
+            img=random.choice(imagelist)
+            # print(len(imagelist))
         imgid=re.search('\d+(?=(_|$))',img).group(0)
         toDownlist=imgid2source_url(imgid,"single",config.local_save_root)
         if len(toDownlist)>0: orgurl,filename=toDownlist[0]
