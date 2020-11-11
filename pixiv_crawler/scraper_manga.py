@@ -14,15 +14,33 @@ import pixiv_crawler.myconfig as config
 from pixiv_crawler.login_sim import login_for_cookies
 
 def login(save_cookies=True):
+    headers={
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "zh-CN,zh;q=0.9,zh-TW;q=0.8,ja;q=0.7",
+        "cache-control": "max-age=0",
+        # "cookie": "first_visit_datetime_pc=2019-10-23+01%3A45%3A24; yuid_b=MjaQhSA; p_ab_id=4; p_ab_id_2=0; p_ab_d_id=2066017740; _ga=GA1.2.347458199.1571762726; a_type=1; b_type=1; login_ever=yes; __utmv=235335808.|2=login%20ever=yes=1^3=plan=normal=1^5=gender=male=1^6=user_id=4187518=1^9=p_ab_id=4=1^10=p_ab_id_2=0=1^11=lang=zh=1; c_type=23; _fbp=fb.1.1586944506617.63635039; ki_s=201056%3A0.0.0.0.0%3B204128%3A0.0.0.0.0%3B208879%3A0.0.0.0.0; __cfduid=d7b97affacf1dbd5f6df3e8cd5eb1d7ff1600868278; __utmc=235335808; __cfduid=d4b9e420f9578e56e1a557d67ac4984031600868290; PHPSESSID=4187518_NYHUliYYivebDIi8oPzLLeqNdSHsAQEy; device_token=ca642bb68134433ab4faf37bd7ebca32; privacy_policy_agreement=2; __utmz=235335808.1602054980.92.11.utmcsr=saucenao.com|utmccn=(referral)|utmcmd=referral|utmcct=/; tag_view_ranking=0xsDLqCEW6~EZQqoW9r8g~Lt-oEicbBr~-98s6o2-Rp~5oPIfUbtd6~2R7RYffVfj~zyKU3Q5L4C~KN7uxuR89w~qWFESUmfEs~u3EAZmzDcl~faHcYIP1U0~Ie2c51_4Sp~SapL8yQw4Y~y8GNntYHsi~TWrozby2UO~RTJMXD26Ak~BU9SQkS-zU~LVSDGaCAdn~liM64qjhwQ~MM6RXH_rlN~zZZn32I7eS~_hSAdpN9rx~CZnOKinv48~HY55MqmzzQ~eVxus64GZU~tgP8r-gOe_~_vCZ2RLsY2~QKeXYK2oSR~NsbQEogeyL~tLGS8BU1Wy~1n-RsNEFpK~jYnWl04aAC~8Le-BdaoRB~ePN3h1AXKX~_bee-JX46i~0RlPEGkN4V~FDo7nPJEjf~-B0wgi3Odg~RcahSSzeRf~jk9IzfjZ6n~azESOjmQSV~qiO14cZMBI~yqPUQRcWeb~d2FncN8CBI~0Sds1vVNKR~ETjPkL0e6r~QaiOjmwQnI~rezgCfkPbs~Txs9grkeRc~THI8rtfzKo~jH0uD88V6F~NGpDowiVmM~Ig7y9noPfS~dbWQByG3DG~qXzcci65nj~VbPCYJXdEP~xa5-CDAPro~-NJZeKTYP8~lRxin4V3-v~ITVapWvXyh~dqqWNpq7ul~uGQeWvelyQ~ervYex7cL4~pnCQRVigpy~JwOnNobdvo~abNIEh2zTB~IEelj7HCPz~EWR7JDW6jH~u8McsBs7WV~B_OtVkMSZT~CmIov8_f5j~7WfWkHyQ76~VFCsNMKQI1~YQeoAIQ1YG~e6DJejypJg~1CWwi2xr7g~ruS9lB-LTZ~aKhT3n4RHZ~-TeGk6mN86~uvBGOtCzqF~i83OPEGrYw~TcgCqYbydo~eOID0W1FsP~Z9znWF68Hy~LLyDB5xskQ~PHQDP-ccQD~sr5scJlaNv~aLBjcKpvWL~dH3yXgOEDc~lvb9wvOmP1~0M0zAeslDb~EttOqqgGxI~C9_ZtBtMWU~Sbp1gmMeRy~CsU1y07-7D~UZootLOo57~nvF1pzp1dN~BxzympfYVP~EjUVXkUEx_~w4GzQUKrBH; ki_r=; __utma=235335808.347458199.1571762726.1602519399.1603088800.95; __cf_bm=1d89ec239b7a210fe5c2a244bc41a83a559cc8f6-1603088802-1800-AZVzddJPDXPuajTtYBkxYUvEOD62H8fGA3W4i07hnzLhUJ6vpGQz3OMhzvCR2VYesue8NKD6Tt1LGiTdoaPmlvVOD0IlAO9MlMpr9DmbfQISQ8tmiTa4wRy2watbLH1ztwHkXd7sbWX177WnpVCvwU7vWbm/2XusLx57tC3i/wP0aRult2b95t0+vBsGaEUUng==; __utmt=1; __utmb=235335808.2.10.1603088800; ki_t=1571763051380%3B1603088813045%3B1603089133211%3B38%3B63",
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "same-origin",
+        "sec-fetch-user": "?1",
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.80 Safari/537.36"
+    }
+    # del headers["cookie"]
+
     if os.path.exists(config.cookies_file) :
         try:
+            print("try loading cookies")
             with open(config.cookies_file,"r") as f:
                 cookies_js=json.load(f)
                 cookiejar=requests.utils.cookiejar_from_dict(cookies_js, cookiejar=None, overwrite=True)
                 session_requests.cookies=cookiejar
+                session_requests.headers.update(headers)
         except Exception as e:
             print("load cookies failed, try log in")
             traceback.print_exc()
+
     r=None
     try:
         r=session_requests.get(pixiv_root)
@@ -30,6 +48,10 @@ def login(save_cookies=True):
         traceback.print_exc()
         print(e)
         
+    # print(r.text)
+    # with open("loadcookies_res.html","wb") as fp:
+    #     fp.write(r.content)
+    print(r.status_code)
     if r is not None and r.status_code==200 and re.search('not-logged-in',r.text)==None:
         print("loaded cookies")
         return
@@ -213,12 +235,15 @@ def get_master_imagelist_from_resp(classi,r):
         # print(ajax)
         r=session_requests.get(ajax)
         js=r.json()
+        # print(js)
         # print("========================")
         # print(r.text)
         # print("========================")
-        popular_permen_list=list(map(lambda x:x['illustId'],js['body']['popular']['permanent']))
-        popular_rec_list=list(map(lambda x:x['illustId'],js['body']['popular']['recent']))
-        data_list=list(map(lambda x:x['illustId'],js['body']['illustManga']['data']))
+        # print(js['body']['illustManga']['data'][-1])
+        popular_permen_list=list(map(lambda x:x['id'],js['body']['popular']['permanent']))
+        popular_rec_list=list(map(lambda x:x['id'],js['body']['popular']['recent']))
+        data_list=[obj['id'] for obj in js['body']['illustManga']['data'] if "id" in obj]
+        # data_list=list(map(lambda x:x['id'],js['body']['illustManga']['data']))
         # print(len(popular_permen_list),len(popular_rec_list),len(data_list))
         retlist=popular_rec_list+popular_permen_list+data_list
         return retlist
@@ -261,46 +286,140 @@ def check_tempfile_overflow(maxitems):
     if(len(temp_file_list)>maxitems):
         for filename in temp_file_list:os.remove(config.temp_save_root+filename)
         print("cleared config.temp_save_root")
+
+
+
+def search_user_for_user_id(user_name):
+    url=config.url_user_search_template%(user_name)
+
+    r=session_requests.get(url)
+    # print(r.text)
+    tree=html.fromstring(r.text)
+
+    users_items=tree.xpath("//div[@class='user-search-result-container']/ul[@class='user-recommendation-items']/li[@class='user-recommendation-item']")
+
+    user_name_ids=[]
+    for li in users_items:
+        user_name=li.xpath("./h1/a/text()")[0]
+        user_id_link=li.xpath("./h1/a/@href")[0]
+        user_id=user_id_link.replace("/users/","")
+        user_name_ids.append([user_name, user_id])
+
+    # print(user_name_ids)
+
+    return user_name_ids
     
         
 def random_one_by_classfi(classi,label="fate"):
     '''classi= "normalrank" or "tag" or "r18rank" '''
+
+    def get_bookmark_number(illust_id):
+        url="https://www.pixiv.net/artworks/{0}".format(illust_id)
+        r=session_requests.get(url)
+
+        tree=html.fromstring(r.text)
+        content=tree.xpath("/html/head/meta[@id='meta-preload-data']/@content")[0]
+        jsdata=content
+        if jsdata:js=json.loads(jsdata)
+        else:
+            print("load jsdata fail")
+            return []
+        js=js["illust"][imgid]
+        bookmark_count=js["bookmarkCount"]
+
+        # print(bookmark_count)
+        # print(type(bookmark_count))
+
+        return bookmark_count
+
     try:
-        # if classi=="tag" and "r-18" not in label.lower():label+=" -r-18"
+        if classi=="tag" and "r-18" not in label.lower():label+=" -r-18"
         
         check_tempfile_overflow(config.max_tempfile_number)
         if not os.path.exists(config.local_save_root) : os.makedirs(config.local_save_root)
+
+        # print(classification)
+        try: login()
+        except Exception as e:print(e);print('Connect failed');return None
+
+
+        # handle search user name
+        if classi.lower()=="illustrator":
+            if not re.match(r"\d+$",label):
+                user_name_ids=search_user_for_user_id(label)
+                print(user_name_ids,len(user_name_ids))
+                if len(user_name_ids)==0:
+                    return None
+                elif len(user_name_ids)>1:
+                    return user_name_ids
+                else:
+                    label=user_name_ids[0][1]
         
         if classi.lower()=="normalrank":classification=[("normalRank",[pixiv_root+"ranking.php?mode=daily&p=1",pixiv_root+"ranking.php?mode=daily&p=2",pixiv_root+"ranking.php?mode=original"])]
         elif classi.lower()=="tag":classification=complete_urllist([("tag",[(label,5)])])
         elif classi.lower()=="r18rank":classification=complete_urllist([("r18Rank",[pixiv_root+"ranking.php?mode=daily_r18&p=1",pixiv_root+"ranking.php?mode=male_r18&p=1",pixiv_root+"ranking.php?mode=weekly_r18&p=1",pixiv_root+"ranking.php?mode=weekly_r18&p=2"])])
+        elif classi.lower()=="illustrator":classification=complete_urllist([("illustrator",[("?",label,-1)])])
         else: return None
         
-        try: login()
-        except Exception as e:print(e);print('Connect failed');return None
+
         
-        url=random.choice(classification[0][1])
-        r=session_requests.get(url)
-        #imagelist=re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
-        imagelist=get_master_imagelist_from_resp(classi.lower(),r)
-        if (not imagelist) and classi.lower()=='tag':
-            url=random.choice(complete_urllist([("tag",[(label,1)])])[0][1])
-            r=session_requests.get(url)
-            imagelist=get_master_imagelist_from_resp(classi.lower(),r)
-            if r.status_code!=200 or not imagelist:return None    
-        if classi.lower()=="tag" and len(imagelist)>60:
+        if classi.lower()=="tag":
+            poplr_illust_id, poplr_bk_num = "", -1
+            for i in range(10):
+                # print(classification)
+                url=random.choice(classification[0][1])
+                r=session_requests.get(url)
+                #imagelist=re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
+                imagelist=get_master_imagelist_from_resp(classi.lower(),r)
+                # print(imagelist)
+                if (not imagelist) and classi.lower()=='tag':
+                    url=random.choice(complete_urllist([("tag",[(label,1)])])[0][1])
+                    r=session_requests.get(url)
+                    imagelist=get_master_imagelist_from_resp(classi.lower(),r)
+                    if r.status_code!=200 or not imagelist:return None    
+                if classi.lower()=="tag" and len(imagelist)>60:
+                    rndi=random.randint(1,100)
+                    if rndi<=40:
+                        img=random.choice(imagelist[:7])
+                    elif rndi<=50:
+                        img=random.choice(imagelist[7:13])
+                    else:
+                        img=random.choice(imagelist[13:])
+                    # print(len(imagelist))
+                else:
+                    img=random.choice(imagelist)
+                    # print(len(imagelist))
+                imgid=re.search('\d+(?=(_|$))',img).group(0)
+
+                bk_num=get_bookmark_number(imgid)
+                print(bk_num)
+                if bk_num>poplr_bk_num:
+                    poplr_illust_id, poplr_bk_num=imgid, bk_num
+
+                if bk_num>=100: break
+            imgid=poplr_illust_id
+        elif classi.lower()=="normalrank":
+                url=random.choice(classification[0][1])
+                r=session_requests.get(url)
+                #imagelist=re.findall(r'(?<=img-master/img)(.*?)(?=_master)',r.text)
+                imagelist=get_master_imagelist_from_resp(classi.lower(),r)
+                # print(imagelist)
+                if (not imagelist):
+                    return None    
+                else:
+                    img=random.choice(imagelist)
+                    # print(len(imagelist))
+                imgid=re.search('\d+(?=(_|$))',img).group(0)  
+        elif classi.lower()=="illustrator":
+            # print(classification[0][1][0])
+            illust_list=classification[0][1][0]
             rndi=random.randint(1,100)
-            if rndi<=40:
-                img=random.choice(imagelist[:7])
-            elif rndi<=50:
-                img=random.choice(imagelist[7:13])
+            if rndi<10:
+                illust_list_int=[int(x) for x in illust_list]
+                imgid=str(max(illust_list_int))
             else:
-                img=random.choice(imagelist[13:])
-            # print(len(imagelist))
-        else:
-            img=random.choice(imagelist)
-            # print(len(imagelist))
-        imgid=re.search('\d+(?=(_|$))',img).group(0)
+                imgid=random.choice(illust_list)     
+
         toDownlist=imgid2source_url(imgid,"single",config.local_save_root)
         if len(toDownlist)>0: orgurl,filename=toDownlist[0]
         else :return None
@@ -589,7 +708,8 @@ def dl_diy_urls(urls,pic_num,deep_into_manga=False,add_classname_in_path=True):
     
 if __name__=="__main__":
     # batch_download()
-    print(random_one_by_classfi("tag","azurlane"))
+    # print(random_one_by_classfi("tag","azurlane"))
     # login()
     # print(get_artist_artistname("21848"))
+    print(search_user_for_user_id("G.M"))
 

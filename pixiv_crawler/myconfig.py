@@ -52,6 +52,7 @@ pixiv_root="https://www.pixiv.net/"
 
 # url_tag_template=pixiv_root+"search.php?word=%s&order=date_d&p=%d"
 url_tag_template=pixiv_root+"tags/%s/artworks?p=%d"
+url_user_search_template=pixiv_root+"search_user.php?nick=%s&s_mode=s_usr"
 url_artist_template=pixiv_root+"member_illust.php?id=%s&type=all&p=%d"
 url_artist_all_template=pixiv_root+"ajax/user/%s/profile/all"
 url_bookmark_template=pixiv_root+"bookmark_new_illust.php?p=%d"

@@ -22,7 +22,7 @@ def login_for_cookies(config):
         driver = webdriver.Firefox(executable_path = config.firefox,service_args=service_args, firefox_options=options)
     if config.chrome:
         options=webdriver.chrome.options.Options()
-        options.add_argument('-headless')
+        # options.add_argument('-headless')
         driver = webdriver.Chrome(executable_path = config.chrome,service_args=service_args, chrome_options=options)
         
 
@@ -39,6 +39,7 @@ def login_for_cookies(config):
     login_button.click()
     
     # print(driver.page_source)
+    driver.save_screenshot("./temp/log_in_err2.png")
     
     try:
         # WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR,"iframe[name^='a-'][src^='https://www.google.com/recaptcha/api2/anchor?']")))
@@ -66,11 +67,12 @@ if __name__=="__main__":
             self.username=""
             self.password=""
             self.proxies_enable = True
-            self.socks = ""
+            self.socks = "127.0.0.1:10808"
             # self.phantomjs = "D:/tectree/Code/phantomjs-2.1.1-windows/bin/phantomjs.exe"
-            self.phantomjs = "/Users/yuehan/tectree/Code/phantomjs-2.1.1-macosx/bin/phantomjs"
+            # self.phantomjs = "/Users/yuehan/tectree/Code/phantomjs-2.1.1-macosx/bin/phantomjs"
+            self.phantomjs = ""
             self.firefox=""
-            self.chrome=""
+            self.chrome="/Users/yuehan/tectree/Code/chromedriver/chromedriver"
             
     config=Config()
     
