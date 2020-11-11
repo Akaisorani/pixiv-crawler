@@ -303,6 +303,7 @@ def search_user_for_user_id(user_name):
         user_name=li.xpath("./h1/a/text()")[0]
         user_id_link=li.xpath("./h1/a/@href")[0]
         user_id=user_id_link.replace("/users/","")
+        user_id=user_id.replace("/en","")
         user_name_ids.append([user_name, user_id])
 
     # print(user_name_ids)
